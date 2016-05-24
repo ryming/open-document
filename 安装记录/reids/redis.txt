@@ -1,0 +1,58 @@
+
+service redis stop
+
+ps -ef | grep redis
+
+service redis start
+
+userdel -r redis
+
+
+useradd redis -m -d /home/redis
+id redis
+
+
+#redis安装目录
+chmod -R 775 /usr/local/etc/redis
+chown -v -R redis:redis /usr/local/etc/redis
+
+#redis数据目录
+chmod -R 775 /usr/local/data/redis
+chown -v -R redis:redis /usr/local/data/redis
+
+#redis日记目录
+chmod -R 775 /var/log/redis
+chown -v -R redis:redis /var/log/redis
+
+
+sed -i 's/\r$//' $REDIS_HOME/bin/redis.sh
+cat -A $REDIS_HOME/bin/redis.sh
+
+chmod 775 $REDIS_HOME/bin/redis.sh
+rm -rf /etc/init.d/redis
+ln -s $REDIS_HOME/bin/redis.sh /etc/init.d/redis
+
+systemctl daemon-reload
+service redis status
+
+redis-cli
+
+keys *
+
+chkconfig --add redis
+chkconfig --level 345 redis on
+
+service redis start
+ps -ef | grep redis
+
+service redis stop
+ps -ef | grep redis
+
+daemon $REDIS_SERVER $REDIS_CONF
+
+
+
+
+su - redis -c $REDIS_HOME/bin/redis-server $REDIS_HOME/conf/redis.conf &
+
+redis-cli
